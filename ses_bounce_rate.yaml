@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: 
+  Cloudwatch Alarm For SES Bounce and Complaint
+
+Metadata: 
+  "AWS::CloudFormation::Interface": 
+    ParameterGroups: 
+      - Label: 
+          default: "SNS Topic ARN"
+        Parameters: 
+          - SnsTopicArn
+
+# ------------------------------------------------------------#
+# Input Parameters
+# ------------------------------------------------------------# 
+Parameters:
+  SnsTopicArn:
+    Type: String
+
+# ------------------------------------------------------------#
+#  Resources
+# ------------------------------------------------------------#
+Resources:
+    CloudWatchAlarmForSesBounceNotice:
+        Type: "AWS::CloudWatch::Alarm"
+        Properties:
+            AlarmName: "SesBounceNotice"
+            ActionsEnabled: true
+            AlarmActions: 
+              - !Ref SnsTopicArn
+            MetricName: "Reputation.BounceRate"
+            Namespace: "AWS/SES"
+            Statistic: "Maximum"
+            Period: 300
+            EvaluationPeriods: 1
+            DatapointsToAlarm: 1
+            Threshold: 0.02
+            ComparisonOperator: "GreaterThanOrEqualToThreshold"
+            TreatMissingData: "notBreaching"
+
+    CloudWatchAlarmForSesComplaintNotice:
+        Type: "AWS::CloudWatch::Alarm"
+        Properties:
+            AlarmName: "SesComplaintNotice"
+            ActionsEnabled: true
+            AlarmActions: 
+              - !Ref SnsTopicArn
+            MetricName: "Reputation.ComplaintRate"
+            Namespace: "AWS/SES"
+            Statistic: "Maximum"
+            Period: 300
+            EvaluationPeriods: 1
+            DatapointsToAlarm: 1
+            Threshold: 0.001
+            ComparisonOperator: "GreaterThanOrEqualToThreshold"
+            TreatMissingData: "notBreaching"
